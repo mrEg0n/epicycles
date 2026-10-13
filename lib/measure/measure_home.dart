@@ -6,6 +6,7 @@ import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:file_selector/file_selector.dart' show XTypeGroup, openFile;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -210,6 +211,55 @@ class _MeasureHomeState extends State<MeasureHome> {
     return c;
   }
 
+  /// Reads a collection file chosen by the user and adds it as a new collection.
+  Future<void> _import() async {
+    final messenger = ScaffoldMessenger.of(context);
+    void say(String message) =>
+        messenger.showSnackBar(SnackBar(content: Text(message)));
+    try {
+      final file = await openFile(
+        acceptedTypeGroups: const [
+          XTypeGroup(
+            label: 'Collection',
+            extensions: ['json'],
+            uniformTypeIdentifiers: ['public.json'],
+          ),
+        ],
+      );
+      if (file == null) return;
+      final ImportedCollection read;
+      try {
+        read = parseCollectionFile(await file.readAsString());
+      } on FormatException {
+        say('This file is not a collection.');
+        return;
+      }
+      if (read.specimens.isEmpty) {
+        say('No specimen could be read from this file.');
+        return;
+      }
+      // An existing name is kept apart rather than merged into.
+      final taken = _all.any((c) => c.name == read.name);
+      final c = await MeasureStore.create(
+        taken ? '${read.name} (imported)' : read.name,
+      );
+      for (final s in read.specimens) {
+        await MeasureStore.save(c, s);
+      }
+      Prefs.setText(_currentKey, c.id);
+      await _reload();
+      final n = read.specimens.length;
+      say(
+        'Imported $n ${n == 1 ? 'specimen' : 'specimens'}'
+        '${read.skipped > 0 ? ', ${read.skipped} skipped' : ''}.',
+      );
+      final current = _current;
+      if (mounted && current != null) await _open(current);
+    } catch (_) {
+      say('Couldn’t import this file.');
+    }
+  }
+
   Future<void> _open(Collection c) async {
     Prefs.setText(_currentKey, c.id);
     await Navigator.of(context).push(
@@ -284,16 +334,25 @@ class _MeasureHomeState extends State<MeasureHome> {
                 ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(22, 8, 22, 12),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Pill(
-                    label: 'New collection',
-                    onTap: () async {
-                      Navigator.of(sheet).pop();
-                      final c = await _create();
-                      if (c != null && mounted) _open(c);
-                    },
-                  ),
+                child: Row(
+                  children: [
+                    Pill(
+                      label: 'New collection',
+                      onTap: () async {
+                        Navigator.of(sheet).pop();
+                        final c = await _create();
+                        if (c != null && mounted) _open(c);
+                      },
+                    ),
+                    const SizedBox(width: 10),
+                    Pill(
+                      label: 'Import from file',
+                      onTap: () {
+                        Navigator.of(sheet).pop();
+                        _import();
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -904,6 +963,37 @@ class _ExportSheetState extends State<_ExportSheet> {
   int _count = 1;
   bool _keepOrientation = true;
 
+  /// Shares the whole collection as one file that the app can import.
+  Future<void> _shareCollection(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box == null
+        ? null
+        : box.localToGlobal(Offset.zero) & box.size;
+    try {
+      final dir = await getTemporaryDirectory();
+      final safe = widget.collection.name
+          .replaceAll(RegExp(r'[^A-Za-z0-9_-]+'), '-')
+          .replaceAll(RegExp(r'^-+|-+$'), '');
+      final file = File(
+        '${dir.path}/${safe.isEmpty ? 'collection' : safe}.epicycles.json',
+      );
+      await file.writeAsString(
+        collectionFile(widget.collection.name, widget.specimens),
+      );
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: 'application/json')],
+          sharePositionOrigin: origin,
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Couldn’t export the collection.')),
+      );
+    }
+  }
+
   Future<void> _share(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     final box = context.findRenderObject() as RenderBox?;
@@ -986,6 +1076,27 @@ class _ExportSheetState extends State<_ExportSheet> {
                 icon: const Icon(Icons.ios_share_rounded, size: 18),
                 label: const Text('Export table'),
                 style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+              ),
+            ),
+            const SizedBox(height: 22),
+            const Text('Whole collection', style: label),
+            const SizedBox(height: 6),
+            const Text(
+              'One file with every outline and its descriptors, to keep, to send to someone '
+              'else or to import on another device.',
+              style: TextStyle(fontSize: 12, color: kFaint, height: 1.45),
+            ),
+            const SizedBox(height: 10),
+            Builder(
+              builder: (context) => FilledButton.icon(
+                onPressed: () => _shareCollection(context),
+                icon: const Icon(Icons.folder_zip_outlined, size: 18),
+                label: const Text('Export collection'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: kFill,
+                  foregroundColor: kInk,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
               ),

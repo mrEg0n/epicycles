@@ -14,7 +14,7 @@ be compared.
   <img src="docs/statistics.png" width="200" alt="Measure: principal component analysis of the leaves">
 </p>
 
-Written in Flutter. It runs on iPhone (iOS 17 or later for subject detection).
+Written in Flutter. It runs on iPhone, iOS 17 or later.
 The Android target has never been built.
 
 ## Draw
@@ -51,6 +51,28 @@ name and a group (both can be changed later). A collection then shows:
 
 The descriptors can be exported as a tab-separated table, one row per specimen,
 with the coefficients in the column order used by the R package Momocs.
+
+### Collection files
+
+A collection can be exported as a single JSON file and imported again, on the same
+phone or another one. The file can also be written by other software, which is a
+way to bring in outlines from existing image archives:
+
+```json
+{
+  "format": "epicycles-collection",
+  "version": 1,
+  "name": "Ivy leaves",
+  "specimens": [
+    { "name": "Leaf 1", "group": "north", "outline": [x0, y0, x1, y1, ...] }
+  ]
+}
+```
+
+Only `outline` is required: a closed outline with y pointing up, in any unit and
+with points at any spacing. It is resampled to 1024 equal steps and its descriptors
+are computed on import. Files exported by the app also carry the raw coefficients
+(`a`, `b`, `c`, `d`, 40 harmonics), which are then used as they are.
 
 ## How it works
 

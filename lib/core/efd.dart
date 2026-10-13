@@ -80,6 +80,64 @@ Efd efdOfPath(Float64List sx, Float64List sy, int harmonics) {
   return Efd(a, b, c, d);
 }
 
+/// A closed outline given as x0, y0, x1, y1… resampled to [m] points equally spaced along it and
+/// centred on their mean. Returns x and y. The points may be unevenly spaced and the outline may
+/// or may not repeat its first point at the end.
+(Float64List, Float64List) resampleOutline(Float64List xy, int m) {
+  var n = xy.length ~/ 2;
+  if (n > 1 && xy[0] == xy[2 * n - 2] && xy[1] == xy[2 * n - 1]) n--;
+  // Length of the side leaving each point; the last one closes the outline.
+  final side = Float64List(n);
+  var total = 0.0;
+  for (var i = 0; i < n; i++) {
+    final k = (i + 1) % n;
+    final dx = xy[2 * k] - xy[2 * i], dy = xy[2 * k + 1] - xy[2 * i + 1];
+    side[i] = math.sqrt(dx * dx + dy * dy);
+    total += side[i];
+  }
+  final x = Float64List(m), y = Float64List(m);
+  var i = 0, before = 0.0, mx = 0.0, my = 0.0;
+  for (var j = 0; j < m; j++) {
+    final s = total * j / m;
+    while (i < n - 1 && before + side[i] < s) {
+      before += side[i];
+      i++;
+    }
+    final k = (i + 1) % n;
+    final u = side[i] > 0 ? ((s - before) / side[i]).clamp(0.0, 1.0) : 0.0;
+    x[j] = xy[2 * i] + (xy[2 * k] - xy[2 * i]) * u;
+    y[j] = xy[2 * i + 1] + (xy[2 * k + 1] - xy[2 * i + 1]) * u;
+    mx += x[j] / m;
+    my += y[j] / m;
+  }
+  for (var j = 0; j < m; j++) {
+    x[j] -= mx;
+    y[j] -= my;
+  }
+  return (x, y);
+}
+
+/// Coefficients of an upright outline (y up) given as x0, y0, x1, y1…, with points at any
+/// spacing: it is first resampled to [samples] equal steps. Also returns the resampled outline.
+(Efd, Float64List) efdOfOutline(
+  Float64List xy,
+  int harmonics, {
+  int samples = 1024,
+}) {
+  final (x, y) = resampleOutline(xy, samples);
+  final down = Float64List(samples);
+  for (var j = 0; j < samples; j++) {
+    down[j] = -y[j];
+  }
+  final (ux, uy) = uprightCounterClockwise(x, down);
+  final outline = Float64List(samples * 2);
+  for (var j = 0; j < samples; j++) {
+    outline[2 * j] = ux[j];
+    outline[2 * j + 1] = uy[j];
+  }
+  return (efdOfPath(x, down, harmonics), outline);
+}
+
 /// Normalised coefficients, with what was removed.
 class NormalisedEfd {
   NormalisedEfd(this.efd, this.size, this.theta, this.psi);

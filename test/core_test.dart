@@ -445,6 +445,79 @@ void main() {
     },
   );
 
+  test('a collection survives export and import', () {
+    final (ax, ay) = outline();
+    final (bx, by) = outline(rot: 0.2, scale: 1.4);
+    Specimen make(String name, String group, Float64List sx, Float64List sy) {
+      final (x, y) = uprightCounterClockwise(sx, sy);
+      final o = Float64List(sx.length * 2);
+      for (var j = 0; j < sx.length; j++) {
+        o[2 * j] = x[j];
+        o[2 * j + 1] = y[j];
+      }
+      return Specimen(
+        id: name,
+        name: name,
+        group: group,
+        date: DateTime(2026, 10, 13, 9),
+        detail: 2,
+        rotation: 0.1,
+        outline: o,
+        efd: efdOfPath(sx, sy, 12),
+      );
+    }
+
+    final a = make('Leaf 1', 'north', ax, ay),
+        b = make('Leaf 2', 'south', bx, by);
+    final back = parseCollectionFile(collectionFile('Ivy', [a, b]));
+    expect(back.name, 'Ivy');
+    expect(back.skipped, 0);
+    expect(back.specimens.map((s) => s.name).toList(), ['Leaf 1', 'Leaf 2']);
+    expect(back.specimens[1].group, 'south');
+    expect(back.specimens[0].date, a.date);
+    expect(maxDiff(back.specimens[0].efd, a.efd), lessThan(1e-12));
+    expect(back.specimens[0].id == back.specimens[1].id, isFalse);
+    expect(
+      () => parseCollectionFile('{"format": "other"}'),
+      throwsFormatException,
+    );
+    expect(() => parseCollectionFile('not json'), throwsFormatException);
+  });
+
+  test('a file with outlines only gets its descriptors on import', () {
+    // An upright outline with points at uneven spacing, as another program might write it.
+    final (sx, sy) = outline(m: 1024);
+    final dense = <double>[], thinned = <double>[];
+    for (var j = 0; j < 1024; j++) {
+      dense
+        ..add(sx[j])
+        ..add(-sy[j]);
+      if (j % 3 != 1) {
+        thinned
+          ..add(sx[j])
+          ..add(-sy[j]);
+      }
+    }
+    final text =
+        '{"format":"epicycles-collection","version":1,"name":"From outside",'
+        '"specimens":[{"outline":[${thinned.join(',')}]},{"outline":[1,2]}]}';
+    final read = parseCollectionFile(text);
+    expect(read.specimens.length, 1);
+    expect(read.skipped, 1);
+    expect(read.specimens.single.name, 'Specimen 1');
+    expect(read.specimens.single.outline.length, 2048);
+    // The descriptors are those of the same outline given at full density: leaving out points
+    // changes the polygon very little, and the resampling makes the spacing irrelevant.
+    final (reference, _) = efdOfOutline(
+      Float64List.fromList(dense),
+      kStoredHarmonics,
+    );
+    final got = normaliseEfd(read.specimens.single.efd, keepOrientation: true);
+    final want = normaliseEfd(reference, keepOrientation: true);
+    expect(maxDiff(got.efd, want.efd), lessThan(2e-3));
+    expect(got.size / want.size, closeTo(1, 1e-3));
+  });
+
   test(
     'the descriptor table has one row per specimen and 4 columns per harmonic',
     () {
