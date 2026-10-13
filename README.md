@@ -8,10 +8,19 @@ chain of rotating circles, and to measure it, turning shapes into numbers that c
 be compared.
 
 <p>
-  <img src="docs/home.png" width="200" alt="Start screen">
-  <img src="docs/draw.png" width="200" alt="Draw: the outline of a hand traced by 32 circles">
-  <img src="docs/measure.png" width="200" alt="Measure: the mean shape of nine ivy leaves, coloured by where they vary">
-  <img src="docs/statistics.png" width="200" alt="Measure: principal component analysis of the leaves">
+  <img src="docs/01-home.png" width="150" alt="Start screen">
+  <img src="docs/02-draw-intro.png" width="150" alt="Draw">
+  <img src="docs/03-draw.png" width="150" alt="A hand traced by 31 circles, over the photo">
+  <img src="docs/04-zoom.png" width="150" alt="Zoomed in on the pen">
+  <img src="docs/05-two-chains.png" width="150" alt="Two chains, one for x(t) and one for y(t)">
+</p>
+
+<p>
+  <img src="docs/06-measure-intro.png" width="150" alt="Measure">
+  <img src="docs/07-outline.png" width="150" alt="The outline found in a photo of an ivy leaf">
+  <img src="docs/08-overlay.png" width="150" alt="Nine ivy leaves overlaid, with their mean">
+  <img src="docs/09-variability.png" width="150" alt="Outline variability">
+  <img src="docs/10-modes.png" width="150" alt="Variance and modes of variation">
 </p>
 
 Written in Flutter. It runs on iPhone, iOS 17 or later.
