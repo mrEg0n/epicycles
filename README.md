@@ -20,7 +20,8 @@ be compared.
   <img src="docs/07-outline.png" width="150" alt="The outline found in a photo of an ivy leaf">
   <img src="docs/08-overlay.png" width="150" alt="Nine ivy leaves overlaid, with their mean">
   <img src="docs/09-variability.png" width="150" alt="Outline variability">
-  <img src="docs/10-modes.png" width="150" alt="Variance and modes of variation">
+  <img src="docs/10-pca.png" width="150" alt="Principal component analysis of the leaves">
+  <img src="docs/11-modes.png" width="150" alt="Variance and modes of variation">
 </p>
 
 Written in Flutter. It runs on iPhone, iOS 17 or later.
