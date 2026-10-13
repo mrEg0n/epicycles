@@ -155,6 +155,10 @@ The Vision call that finds the subjects is in `ios/Runner/AppDelegate.swift`.
 - V. Bonhomme et al., Momocs: outline analysis using R, *Journal of Statistical
   Software* 56 (2014).
 
+## Privacy
+
+The app collects no data. See [PRIVACY.md](PRIVACY.md).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
