@@ -8,26 +8,19 @@ chain of rotating circles, and to measure it, turning shapes into numbers that c
 be compared.
 
 <p>
-  <img src="docs/01-home.png" width="150" alt="Start screen">
-  <img src="docs/02-draw-intro.png" width="150" alt="Draw">
-  <img src="docs/03-draw.png" width="150" alt="A hand traced by 31 circles, over the photo">
-  <img src="docs/04-zoom.png" width="150" alt="Zoomed in on the pen">
-  <img src="docs/05-two-chains.png" width="150" alt="Two chains, one for x(t) and one for y(t)">
-</p>
-
-<p>
-  <img src="docs/06-measure-intro.png" width="150" alt="Measure">
-  <img src="docs/07-outline.png" width="150" alt="The outline found in a photo of an ivy leaf">
-  <img src="docs/08-overlay.png" width="150" alt="Nine ivy leaves overlaid, with their mean">
-  <img src="docs/09-variability.png" width="150" alt="Outline variability">
-  <img src="docs/10-pca.png" width="150" alt="Principal component analysis of the leaves">
-  <img src="docs/11-modes.png" width="150" alt="Variance and modes of variation">
+  <img src="docs/01-home.png" width="200" alt="Start screen">
 </p>
 
 Written in Flutter. It runs on iPhone, iOS 17 or later.
 The Android target has never been built.
 
 ## Draw
+
+<p>
+  <img src="docs/03-draw.png" width="190" alt="A hand traced by 31 circles, over the photo">
+  <img src="docs/04-zoom.png" width="190" alt="Zoomed in on the pen">
+  <img src="docs/05-two-chains.png" width="190" alt="Two chains, one for x(t) and one for y(t)">
+</p>
 
 Pick a photo, tap the subject the phone finds, retouch the silhouette with a brush
 if needed and turn it the way you like. The outline is then drawn by a chain of
@@ -43,6 +36,14 @@ the spectrum as a table.
 A second view splits the motion into x(t) and y(t), each drawn by its own chain.
 
 ## Measure
+
+<p>
+  <img src="docs/07-outline.png" width="150" alt="The outline found in a photo of an ivy leaf">
+  <img src="docs/08-overlay.png" width="150" alt="Nine ivy leaves overlaid, with their mean">
+  <img src="docs/09-variability.png" width="150" alt="Outline variability">
+  <img src="docs/10-pca.png" width="150" alt="Principal component analysis of the leaves">
+  <img src="docs/11-modes.png" width="150" alt="Variance and modes of variation">
+</p>
 
 One outline says little; the interesting part is how the outlines of a collection
 differ. Measure stores each outline as elliptic Fourier descriptors (Kuhl and
