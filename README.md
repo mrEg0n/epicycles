@@ -8,7 +8,9 @@ chain of rotating circles, and to measure it, turning shapes into numbers that c
 be compared.
 
 <p>
-  <img src="docs/01-home.png" width="200" alt="Start screen">
+  <img src="docs/01-home.png" width="190" alt="Start screen">
+  <img src="docs/02-draw-intro.png" width="190" alt="Draw">
+  <img src="docs/06-measure-intro.png" width="190" alt="Measure">
 </p>
 
 Written in Flutter. It runs on iPhone, iOS 17 or later.
