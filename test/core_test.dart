@@ -385,6 +385,19 @@ void main() {
     },
   );
 
+  test('first-ellipse normalisation gives the same descriptors at every rotation', () {
+    // A full turn in 24 steps covers all four quadrants of the first ellipse's major axis.
+    final (ax, ay) = outline();
+    final ref = normaliseEfd(efdOfPath(ax, ay, 10), keepOrientation: false);
+    expect(ref.efd.a[0], closeTo(1, 1e-12));
+    for (var i = 1; i < 24; i++) {
+      final (bx, by) = outline(rot: 2 * math.pi * i / 24);
+      final other = normaliseEfd(efdOfPath(bx, by, 10), keepOrientation: false);
+      expect(other.efd.a[0], closeTo(1, 1e-12), reason: 'rotation step $i');
+      expect(maxDiff(ref.efd, other.efd), lessThan(1e-9), reason: 'rotation step $i');
+    }
+  });
+
   test('keeping the orientation still removes size and starting point', () {
     final (ax, ay) = outline(rot: 0.3);
     final ref = normaliseEfd(efdOfPath(ax, ay, 10), keepOrientation: true);

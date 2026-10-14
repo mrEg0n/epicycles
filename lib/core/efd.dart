@@ -192,8 +192,9 @@ NormalisedEfd normaliseEfd(Efd e, {required bool keepOrientation}) {
     theta = math.atan2(-a1, b1);
     if (c1 * math.cos(theta) + d1 * math.sin(theta) < 0) theta += math.pi;
   } else {
-    psi = math.atan(cc / aa) % math.pi;
-    if (aa < 0) psi += math.pi;
+    // atan2, not atan(cc / aa): the ratio loses the signs, and the major axis would end up
+    // pointing left for half of the orientations.
+    psi = math.atan2(cc, aa);
   }
   final cp = math.cos(psi), sp = math.sin(psi);
   final n = e.n;
