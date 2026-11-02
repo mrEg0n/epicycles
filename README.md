@@ -6,7 +6,7 @@ Epicycles is an iPhone app that takes the outline of an object from a photo and
 writes it as a Fourier series. It is meant more as a tool for curiosity and
 experimentation than as a fully fledged scientific package, though it could serve
 as a starting point for more serious applications. It is built in Flutter. It runs on iPhone, iOS 17 or
-later. The Android version has not been built yet.
+later, and is available on the [App Store](https://apps.apple.com/app/id6822249885). The Android version has not been built yet.
 
 The series can be used in two ways: to draw the outline with a chain of rotating
 circles, and to measure it, turning shapes into numbers that can be compared.
